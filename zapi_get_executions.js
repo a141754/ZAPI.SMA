@@ -12,9 +12,9 @@ var rp = require('request-promise');
  //Get IssueID
  var getIssueID = jira.getIssueID(myArgs[0]);
  rp(getIssueID)
-    .then(function (repos) {
+    .then(function (response) {
+        var issueID = response["id"];
         //Define ZAPI credentials
-        var issueID = repos["id"];
         var BASE_URL = 'https://prod-api.zephyr4jiracloud.com/connect'
         var ACCESS_KEY = 'amlyYTpjYmQ2MzVlZC0xMjYwLTRkYjAtYjE2NC04OWNmMWI0MDYxN2QgbmhlcnplZ292aW5hIFVTRVJfREVGQVVMVF9OQU1F'
         var SECRET_KEY = 'OQ-AEZuoQ20RynMK6CGSAUOXz-IP7MUqvPKTr_7wSIQ'
@@ -23,7 +23,7 @@ var rp = require('request-promise');
         var JwtClient = new Client(BASE_URL, ACCESS_KEY, SECRET_KEY, USER);
         //To Create API Specific JWT Token.
         var METHOD = 'GET'
-        var issueID = repos["id"];
+        var issueID = response["id"];
         var API_URI = `https://prod-api.zephyr4jiracloud.com/connect/public/rest/api/1.0/executions?issueId=${issueID}&projectId=${myArgs[1]}`
         var JWT_EXPIRE = 72000
         
@@ -42,12 +42,12 @@ var rp = require('request-promise');
             }}, function (error, response, body) {
             console.log('statusCode: ' + prettyjson.render(response.statusCode));
             console.log('Headers: ' +  prettyjson.render(response.headers));
-            console.log('Body: ' + prettyjson.render(JSON.parse(body)));
+            console.log('Body: ' + prettyjson.render(JSON.parse(body)["executions"][0]["execution"]["id"]));
             console.log(typeof body, body.constructor.name);
         });
     })
     .catch(function (err) {
         // API call failed...
-        console.log("API call failed");
+        console.log("Unable to retrieve JIRA Issue ID");
     });
 
